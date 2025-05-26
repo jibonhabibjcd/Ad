@@ -73,14 +73,24 @@
       font-weight: bold;
       box-shadow: 0 0 15px #00ff88;
       transition: background 0.3s;
+      margin-bottom: 10px;
     }
 
     button:hover {
       background: #00cc66;
     }
 
+    .stop-btn {
+      background: #ff4444;
+      box-shadow: 0 0 15px #ff4444;
+    }
+
+    .stop-btn:hover {
+      background: #cc0000;
+    }
+
     .status {
-      margin-top: 15px;
+      margin-top: 10px;
       font-size: 15px;
       color: #00ffff;
       text-shadow: 0 0 5px #00ffff;
@@ -102,11 +112,12 @@
     <h1>AI Auto View Booster</h1>
     <input type="text" id="link" placeholder="Enter your target link (http)">
     <button onclick="startAutoView()">START AUTO VIEW</button>
+    <button class="stop-btn" onclick="stopAutoView()">STOP</button>
     <div class="status" id="status">Status: Ready</div>
     <div class="count" id="counter">Visited: 0</div>
   </div>
 
-  <!-- Monetag High-CPM Ad Script -->
+  <!-- Optional Monetag Ad Script (remove if not needed) -->
   <script type='text/javascript'>
     var monetag = document.createElement('script');
     monetag.type = 'text/javascript';
@@ -134,6 +145,12 @@
       while (running && count < 100) {
         const visitUrl = `${link}?auto=${Math.floor(Math.random() * 999999)}`;
         const tab = window.open(visitUrl, '_blank');
+        if (!tab) {
+          document.getElementById("status").innerText = "Popup blocked! Please allow popups.";
+          running = false;
+          break;
+        }
+
         await new Promise(resolve => setTimeout(resolve, 20000));
         if (tab) tab.close();
         count++;
@@ -142,8 +159,15 @@
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
-      document.getElementById("status").innerText = "Auto View Completed!";
+      if (running) {
+        document.getElementById("status").innerText = "Auto View Completed!";
+      }
       running = false;
+    }
+
+    function stopAutoView() {
+      running = false;
+      document.getElementById("status").innerText = "Stopped by user.";
     }
   </script>
 
