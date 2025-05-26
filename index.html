@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Auto View Booster</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #000000, #050505);
+      font-family: 'Courier New', monospace;
+      color: #00ff88;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .booster-box {
+      background: rgba(0, 0, 0, 0.85);
+      border: 2px solid #00ff88;
+      border-radius: 15px;
+      box-shadow: 0 0 25px #00ff88, 0 0 60px #007755 inset;
+      padding: 25px;
+      width: 95%;
+      max-width: 480px;
+      animation: flicker 1.5s infinite alternate;
+    }
+
+    @keyframes flicker {
+      0% { box-shadow: 0 0 10px #00ff88; }
+      100% { box-shadow: 0 0 25px #00ff88, 0 0 60px #007755 inset; }
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #00ffe0;
+      text-shadow: 0 0 10px #00ffe0;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background: #000;
+      color: #00ff88;
+      border: 1px solid #00ff88;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      box-shadow: 0 0 12px #00ff88 inset;
+    }
+
+    input::placeholder {
+      color: #009966;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background: #00ff88;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 15px #00ff88;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #00cc66;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-size: 15px;
+      color: #00ffff;
+      text-shadow: 0 0 5px #00ffff;
+      min-height: 40px;
+    }
+
+    .count {
+      margin-top: 5px;
+      font-size: 16px;
+      color: #00ff88;
+      text-align: center;
+      text-shadow: 0 0 3px #00ff88;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="booster-box">
+    <h1>AI Auto View Booster</h1>
+    <input type="text" id="link" placeholder="Enter your target link (http)">
+    <button onclick="startAutoView()">START AUTO VIEW</button>
+    <div class="status" id="status">Status: Ready</div>
+    <div class="count" id="counter">Visited: 0</div>
+  </div>
+
+  <!-- Monetag High-CPM Ad Script -->
+  <script type='text/javascript'>
+    var monetag = document.createElement('script');
+    monetag.type = 'text/javascript';
+    monetag.async = true;
+    monetag.src = '//go.pushnative.com/tag.min.js';
+    document.body.appendChild(monetag);
+  </script>
+
+  <script>
+    let running = false;
+    let count = 0;
+
+    async function startAutoView() {
+      const link = document.getElementById("link").value.trim();
+      if (!link.startsWith("http")) {
+        alert("Please enter a valid link starting with http or https");
+        return;
+      }
+
+      if (running) return;
+      running = true;
+      count = 0;
+      document.getElementById("status").innerText = "Starting auto view...";
+
+      while (running && count < 100) {
+        const visitUrl = `${link}?auto=${Math.floor(Math.random() * 999999)}`;
+        const tab = window.open(visitUrl, '_blank');
+        await new Promise(resolve => setTimeout(resolve, 20000));
+        if (tab) tab.close();
+        count++;
+        document.getElementById("counter").innerText = `Visited: ${count}`;
+        document.getElementById("status").innerText = `Opening ${visitUrl}`;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      document.getElementById("status").innerText = "Auto View Completed!";
+      running = false;
+    }
+  </script>
+
+</body>
+</html>
