@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>Terminal View Booster - Smart UA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Fira Code', monospace;
+      background: black;
+      color: #33ff33;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      position: fixed; top: 0; left: 0; z-index: 0;
+    }
+    .terminal-box {
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #33ff33;
+      border-radius: 8px;
+      padding: 25px;
+      width: 90%;
+      max-width: 500px;
+      z-index: 1;
+      box-shadow: 0 0 15px #33ff33;
+    }
+    h1 {
+      text-align: center;
+      color: #66ff66;
+      font-size: 22px;
+      margin-bottom: 15px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      background: black;
+      color: #33ff33;
+      border: 1px solid #33ff33;
+      border-radius: 5px;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #33ff33;
+      border: none;
+      font-weight: bold;
+      color: black;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    button:hover { background: #00cc00; }
+    .stop-btn {
+      background: #ff3333;
+      color: white;
+    }
+    .stop-btn:hover { background: #cc0000; }
+    .status, .count {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 10px;
+      text-shadow: 0 0 5px #33ff33;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="terminal-box">
+  <h1>Terminal View Booster</h1>
+  <input type="text" id="link" placeholder="এখানে তোমার CPA লিংক পেস্ট করো...">
+  <button onclick="startAutoView()">Start View</button>
+  <button class="stop-btn" onclick="stopAutoView()">Stop</button>
+  <div class="status" id="status">Status: Standby</div>
+  <div class="count" id="counter">Visited: 0</div>
+</div>
+
+<script>
+  const canvas = document.getElementById("matrix");
+  const ctx = canvas.getContext("2d");
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+  const letters = "01";
+  const fontSize = 14;
+  const columns = canvas.width / fontSize;
+  const drops = Array(Math.floor(columns)).fill(1);
+
+  function draw() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#33ff33";
+    ctx.font = fontSize + "px monospace";
+    for (let i = 0; i < drops.length; i++) {
+      const text = letters[Math.floor(Math.random() * letters.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+  setInterval(draw, 35);
+</script>
+
+<script>
+  let running = false;
+  let count = 0;
+  const userAgents = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X)...",
+    "Mozilla/5.0 (Linux; Android 11; SM-A107F)...",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)...",
+    "Mozilla/5.0 (iPad; CPU OS 13_3_1 like Mac OS X)..."
+  ];
+
+  async function startAutoView() {
+    const link = document.getElementById("link").value.trim();
+    if (!link.startsWith("http")) {
+      alert("সঠিক লিংক দাও (http বা https দিয়ে শুরু হওয়া)");
+      return;
+    }
+    if (running) return;
+    running = true;
+    count = 0;
+    document.getElementById("status").innerText = "ভিজিট শুরু হয়েছে...";
+
+    while (running && count < 100) {
+      const visitUrl = `${link}?v=${Math.floor(Math.random() * 1000000)}`;
+      const randomUA = userAgents[Math.floor(Math.random() * userAgents.length)];
+      const popup = window.open("", "_blank");
+      if (!popup) {
+        document.getElementById("status").innerText = "পপআপ ব্লক হয়েছে! অনুমতি দিন।";
+        running = false;
+        break;
+      }
+      popup.document.write(\`
+        <html>
+        <head><title>Loading...</title></head>
+        <body style="background:black;color:#33ff33;font-family:monospace;text-align:center;padding:30px">
+          <h2>Visiting as:</h2>
+          <p>\${randomUA}</p>
+          <script>
+            setTimeout(() => { window.location.href = "\${visitUrl}"; }, 1000);
+          <\/script>
+        </body>
+        </html>
+      \`);
+      await new Promise(resolve => setTimeout(resolve, 20000));
+      popup.close();
+      count++;
+      document.getElementById("counter").innerText = "Visited: " + count;
+      document.getElementById("status").innerText = \`Visited with UA: \${randomUA}\`;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    if (running) document.getElementById("status").innerText = "সবগুলো ভিজিট শেষ।";
+    running = false;
+  }
+
+  function stopAutoView() {
+    running = false;
+    document.getElementById("status").innerText = "বন্ধ করা হয়েছে।";
+  }
+</script>
+
+</body>
+</html>
